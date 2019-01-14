@@ -1,18 +1,30 @@
 from github import Github
 
-# First create a Github instance:
 
-# or using an access token
-g = Github("9517082cce9860b93b7117f40989b1a92de39de9 ")
+def is_build_fail(commit):
+    status = c.get_statuses()
+    for s in status:
+        if s.context == "continuous-integration/travis-ci/pr" and s.state == "failure":
+            return True
+    return False
+
+
+g = Github("9517082cce9860b93b7117f40989b1a92de39de9")
 
 repo = g.get_repo("SonarSource/sonarqube")
-pulls = repo.get_pulls(state='open', sort='created', base='master')
+pull_requests = repo.get_pulls(state='closed', base='master')
 
-for pr in pulls:
-    print(pr.number)
 
-pull=repo.get_pull(2651)
+merged_pull_requests = filter(lambda pr: pr.is_merged(), pull_requests)
 
-commits=pull.get_commits()
-for c in commits:
-    print(c)
+had_failed_pull_requests = []
+
+for pr in merged_pull_requests:
+    commits = pr.get_commits()
+    for c in commits:
+        if is_build_fail(c):
+            print("pull request #", pr.number, " is added")
+            had_failed_pull_requests.append(pr)
+            break
+
+print(len(had_failed_pull_requests))
