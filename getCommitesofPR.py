@@ -45,49 +45,44 @@ def run():
 
 
 def testsPasMisAJour(array1, array2):
-    testPasJour = False
     for element in array1:
         for element2 in array2:
             if (element[0:-5] in element2):
                 if("Test" in element or "Test" in element2):
-                    testPasJour = True
-    return testPasJour
+                   return True
+    return False
 
 
 def testsMalEcrit(array1, array2):
-    testMalEcrit = False
     for element in array1:
         for element2 in array2:
             if (element == element2):
                 if("Test" in element):
-                    testMalEcrit = True
-    return testMalEcrit
+                    return True
+    return False
 
 
 def testsMalEcrit2(array1):
-    testMalEcrit = True
     for element in array1:
         if("Test" not in element):
-            testMalEcrit = False
-    return testMalEcrit
+            return False
+    return True
 
 
 def codeAjouteDefectueux(array1, array2):
-    same = False
     for element in array1:
         for element2 in array2:
             if (element == element2):
-                same = True
-    return same
+                return True
+    return False
 
 
 def codeAjouteMarche(array1, array2):
-    same = True
     for element in array1:
         for element2 in array2:
             if (element == element2):
-                same = False
-    return same
+                return False
+    return True
 
 
 NBtestsPasAJour = 0
@@ -114,7 +109,7 @@ def hisCodeIsBad(pullrequest):
             if codeAjouteDefectueux(myCommits[i]["files"], myCommits[i+1]["files"]):
                 NBcodeAjouteMauvais += 1
                 print("Le code ajouter contient des erreurs")
-            if codeAjouteDefectueux(myCommits[i]["files"], myCommits[i+1]["files"]):
+            if codeAjouteMarche(myCommits[i]["files"], myCommits[i+1]["files"]):
                 NBcodeAjouteMarche += 1
                 print(
                     "Le code ajouter ne contient pas erreurs mais produit des erreurs dans le reste du system")
