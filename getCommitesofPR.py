@@ -47,42 +47,47 @@ def run():
 def testsPasMisAJour(array1, array2):
     for element in array1:
         for element2 in array2:
-            if (element[0:-5] in element2):
-                if("Test" in element or "Test" in element2):
-                   return True
+            if element[0:-5] in element2 and ("Test" in element or "Test" in element2):
+                return True
     return False
 
 
 def testsMalEcrit(array1, array2):
     for element in array1:
         for element2 in array2:
-            if (element == element2):
-                if("Test" in element):
-                    return True
+            if element == element2 and "Test" in element:
+                return True
     return False
-
-
-def testsMalEcrit2(array1):
-    for element in array1:
-        if("Test" not in element):
-            return False
-    return True
 
 
 def codeAjouteDefectueux(array1, array2):
     for element in array1:
         for element2 in array2:
-            if (element == element2):
+            if element == element2:
                 return True
     return False
+
+
+def codeAjouteDefectueux2(before, errorCommit, after):
+    for element in errorCommit:
+        if not "Test" in element:
+            return False
+    return codeAjouteDefectueux(before, after)
 
 
 def codeAjouteMarche(array1, array2):
     for element in array1:
         for element2 in array2:
-            if (element == element2):
+            if element == element2:
                 return False
     return True
+
+
+def codeAjouteMarche2(before, errorCommit, after):
+    for element in errorCommit:
+        if not "Test" in element:
+            return False
+    return codeAjouteMarche(before, after)
 
 
 NBtestsPasAJour = 0
@@ -92,7 +97,7 @@ NBcodeAjouteMarche = 0
 
 
 def hisCodeIsBad(pullrequest):
-    print("####"+str(pullrequest))
+    print("####" + str(pullrequest))
     get_commits(pullrequest)
     global NBtestsPasAJour
     global NBtestsMalEcrit
@@ -103,13 +108,21 @@ def hisCodeIsBad(pullrequest):
             if testsPasMisAJour(myCommits[i]["files"], myCommits[i+1]["files"]):
                 NBtestsPasAJour += 1
                 print("Tests pas mis à jour")
-            if testsMalEcrit(myCommits[i]["files"], myCommits[i+1]["files"]) or testsMalEcrit2(myCommits[i]["files"]):
+            if testsMalEcrit(myCommits[i]["files"], myCommits[i+1]["files"]):
                 NBtestsMalEcrit += 1
                 print("Tests mal écrit")
-            if codeAjouteDefectueux(myCommits[i]["files"], myCommits[i+1]["files"]):
+            CAD2 = False
+            if i != 0:
+                CAD2 = codeAjouteDefectueux2(
+                    myCommits[i-1]["files"], myCommits[i]["files"], myCommits[i+1]["files"])
+            if codeAjouteDefectueux(myCommits[i]["files"], myCommits[i+1]["files"]) or CAD2:
                 NBcodeAjouteMauvais += 1
                 print("Le code ajouter contient des erreurs")
-            if codeAjouteMarche(myCommits[i]["files"], myCommits[i+1]["files"]):
+            CAM2 = False
+            if i != 0:
+                CAM2 = codeAjouteMarche2(
+                    myCommits[i-1]["files"], myCommits[i]["files"], myCommits[i+1]["files"])
+            if codeAjouteMarche(myCommits[i]["files"], myCommits[i+1]["files"]) or CAM2:
                 NBcodeAjouteMarche += 1
                 print(
                     "Le code ajouter ne contient pas erreurs mais produit des erreurs dans le reste du system")
