@@ -1,5 +1,5 @@
 from github import Github
-
+from utils import *
 # clauses :
 
 # code qui
@@ -10,14 +10,6 @@ repo = g.get_repo("SonarSource/sonarqube")
 myCommits = []
 
 
-def is_build_fail(commit):
-    status = commit.get_statuses()
-    for s in status:
-        if s.context == "continuous-integration/travis-ci/pr" and s.state == "failure":
-            return True
-    return False
-
-
 def get_commits(numeroPull):
     global myCommits
     myCommits = []
@@ -26,6 +18,7 @@ def get_commits(numeroPull):
     for c in commits:
         status = "good"
         filesModified = []
+        wait_limit_reset(g, 100)
         if is_build_fail(c):
             status = "error"
         for f in c.files:

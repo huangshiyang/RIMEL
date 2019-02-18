@@ -3,28 +3,7 @@ import time
 from datetime import datetime
 import sys
 import getopt
-
-g = Github("9517082cce9860b93b7117f40989b1a92de39de9")
-
-
-def wait_limit_reset(remaining):
-    rate_limit = g.get_rate_limit()
-    if rate_limit.core.remaining < remaining:
-        present = datetime.now()
-        delta = present - rate_limit.core.reset
-        print("waiting")
-        time.sleep(3600 - int(delta.total_seconds()))
-        print("rate limit reseted")
-
-
-def is_build_fail(commit):
-    status = commit.get_statuses()
-    for s in status:
-        if s.context == "continuous-integration/travis-ci/pr":
-            if s.state == "failure":
-                return True
-            return False
-    return False
+from utils import *
 
 
 def main(argv):
@@ -48,6 +27,7 @@ def main(argv):
         sys.exit(2)
 
     print("start")
+    g = Github("9517082cce9860b93b7117f40989b1a92de39de9")
     repo = g.get_repo(repo_name)
     pull_requests = repo.get_pulls(state='closed', base='master')
 
@@ -58,7 +38,7 @@ def main(argv):
     for pr in merged_pull_requests:
         commits = pr.get_commits()
         for c in commits:
-            wait_limit_reset(100)
+            wait_limit_reset(g, 100)
             if is_build_fail(c):
                 print(pr.number)
                 file.write(str(pr.number) + "\n")
