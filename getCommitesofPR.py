@@ -63,6 +63,7 @@ def get_commits(g, repo, numeroPull):
     return myCommits
 
 
+# Commit_Error : files [ x.java, v.java] ---> Commit_Good : files [x.test ]
 def testsPasMisAJour(array1, array2):
     for element in array1:
         for element2 in array2:
@@ -70,7 +71,7 @@ def testsPasMisAJour(array1, array2):
                 return True
     return False
 
-
+# Commit_Error : files [x.test, v.test] ---> Commit_Good : files [ x.test ]
 def testsMalEcrit(array1, array2):
     for element in array1:
         for element2 in array2:
@@ -78,7 +79,7 @@ def testsMalEcrit(array1, array2):
                 return True
     return False
 
-
+# Commit_Error : files [x.java, v.java] ---> Commit_Good : files [ x.java ]
 def codeAjouteDefectueux(array1, array2):
     for element in array1:
         for element2 in array2:
@@ -86,14 +87,14 @@ def codeAjouteDefectueux(array1, array2):
                 return True
     return False
 
-
+# Commit_Good : files [x.java, o.java] ---> Commit_Error : files [x.test, v.test, o.test] ---> Commit_Good : files [x.java]
 def codeAjouteDefectueux2(before, errorCommit, after):
     for element in errorCommit:
         if not "Test" in element:
             return False
     return codeAjouteDefectueux(before, after)
 
-
+# Commit_Error : files [x.java , v.java] ---> Commit_Good : files [ o.java ] 
 def codeAjouteMarche(array1, array2):
     for element in array1:
         for element2 in array2:
@@ -101,7 +102,7 @@ def codeAjouteMarche(array1, array2):
                 return False
     return True
 
-
+# Commit_Good : files [x.java, o.java] ---> Commit_Error : files [x.test, v.test, o.test] ---> Commit_Good : files [v.java]
 def codeAjouteMarche2(before, errorCommit, after):
     for element in errorCommit:
         if not "Test" in element:
