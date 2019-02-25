@@ -8,6 +8,9 @@ NBtestsMalEcrit = 0
 NBcodeAjouteMauvais = 0
 NBcodeAjouteMarche = 0
 
+NBcommits = 0
+NBcommitsError = 0
+
 
 def main(argv):
     repo_name = ''
@@ -40,7 +43,8 @@ def main(argv):
     print("----------------------resultat:--------------------")
     print("NBtestsPasAJour:" + str(NBtestsPasAJour) + " NBtestsMalEcrit:" + str(NBtestsMalEcrit) +
           " NBcodeAjouteMauvais:" + str(NBcodeAjouteMauvais) + " NBcodeAjouteMarche:" + str(NBcodeAjouteMarche))
-
+    print("NBcommits:" + str(NBcommits) +
+          " NBcommitsError:" + str(NBcommitsError))
 
 def get_commits(g, repo, numeroPull):
     myCommits = []
@@ -49,6 +53,7 @@ def get_commits(g, repo, numeroPull):
     i = 0
     for c in commits:
         status = "good"
+        number = 1
         filesModified = []
         wait_limit_reset(g, 100)
         for f in c.files:
@@ -56,9 +61,10 @@ def get_commits(g, repo, numeroPull):
         if is_build_fail(c):
             status = "error"
             if i is not 0 and myCommits[i-1]["status"] == "error":
+                number += 1
                 myCommits[i - 1]["files"].extend(filesModified)
                 continue
-        myCommits.append({"status": status, "files": filesModified})
+        myCommits.append({"status": status, "files": filesModified, "number": number})
         i += 1
     return myCommits
 
@@ -94,7 +100,7 @@ def codeAjouteDefectueux2(before, errorCommit, after):
             return False
     return codeAjouteDefectueux(before, after)
 
-# Commit_Error : files [x.java , v.java] ---> Commit_Good : files [ o.java ] 
+# Commit_Error : files [x.java , v.java] ---> Commit_Good : files [ o.java ]
 def codeAjouteMarche(array1, array2):
     for element in array1:
         for element2 in array2:
@@ -116,8 +122,12 @@ def hisCodeIsBad(commits, pullrequest):
     global NBtestsMalEcrit
     global NBcodeAjouteMauvais
     global NBcodeAjouteMarche
+    global NBcommits
+    global NBcommitsError
     for i in range(len(commits) - 1):
+        NBcommits += commits[i]["number"]
         if commits[i]["status"] == "error":
+            NBcommitsError += commits[i]["number"]
             if testsPasMisAJour(commits[i]["files"], commits[i+1]["files"]):
                 NBtestsPasAJour += 1
                 print("Tests pas mis à jour")
