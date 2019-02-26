@@ -161,44 +161,85 @@ def if_function_modified(file_tab, ligne_nb):
     
     # only if indentation is bigger that 2 it can be part of function body
     if size_of_indentation < 4:
-        print(" NO FUCNTION")
+        #print(" NO FUCNTION")
         return -1
 
     # if definition of the function just have been added/deleted then it can't be modification
     if_fn_def = if_function_def(file_tab[ligne_nb])
     if if_fn_def:
-        print("false")
+        #print("false")
         return -1
 
     # checking previous lignes till the one that has smaller indentation
     index_file = ligne_nb-1
     for i in range(1, ligne_nb):
         size_indent = count_indentation(file_tab, index_file)
-        print("boucle")
-        if (size_indent != size_of_indentation):
-            potential_fucntion = file_tab[index_file]
-            print(potential_fucntion)
-            fn_name = if_function_def(potential_fucntion)
-            if (fn_name != False):
-                print("FOUND MEEEEEEE")
-                print("name function ", fn_name)
-                return (fn_name,index_file)
-            else:
-                #print("**********************************")
+        #print("boucle")
+        #if (size_indent != size_of_indentation):
+        potential_fucntion = file_tab[index_file]
+        #print(potential_fucntion)
+        fn_name = if_function_def(potential_fucntion)
+        if (fn_name != False):
+            if (fn_name == 1):
                 return -1
+            #print("FOUND MEEEEEEE")
+            fn_name = fn_name.split("(")
+            if(len(fn_name) > 1):
+                fn_name = fn_name[0]
+            print("name function ", fn_name)
+            return (fn_name,index_file)
         index_file -= 1
-    print("nothing")
+    return -1
+
+#to check if the last signe of the function is "(" or "{"
+# if { - returns 1
+#if ( - returns 2
+#else - returns -1
+def if_last_signe(words):
+    last_word_line = words[len(words)-1]
+    last_word_line = last_word_line.split(")")
+    #print(last_word_line)
+    if len(last_word_line) > 1:
+        last_word_line = last_word_line[1]
+    else:
+        last_word_line = last_word_line[0]
+    #print(last_word_line)
+    if (last_word_line == "("):
+        return 2
+    if (last_word_line == "{"):
+        return 1
     return -1
 
 
-# modification in differetn method
-# def modified_different_method(file_older, file_current):
+
+#if 1 returns- ligne it's not inside of function, but inside of something that it's not function-> therefore it doesn't count as a function changment
 def if_function_def(ligne):
     words = ligne.split()
     #print("ligne ", words)
-    if (len(words) > 1 and (words[0] == ("public" or "private")) and (words[len(words)-1] == "{" or words[len(words)-1] =="(")):
-        fn_name= words[3]
-        return fn_name
+    if (len(words) > 1):
+        last_symbol = if_last_signe(words)
+        if (((words[0] == "public") or (words[0] == "private")) and (words[1] != "class" and words[1] != "interface" )):
+            if (last_symbol == 1 or last_symbol == 2):
+                #print("Here")
+                if (words[1] == "static"):
+                    fn_name= words[3]
+                    return fn_name
+                fn_name= words[2]
+                return fn_name
+        if(words[0] == "+" and ((words[1] == "public") or (words[1] == "private")) and (words[2] != "class" and words[2] != "interface" )):#and not words[2][0].isupper()
+                #print(words[2])
+                #print("''''''' " ,words[2][0].isupper())
+            if (last_symbol == 1 or last_symbol == 2):
+                    #print("Here 3")
+                if (words[2] == "static"):
+                    fn_name= words[4]
+                    return fn_name
+                fn_name= words[3]
+                return fn_name
+#this signified that the ligne was change inside something that is not function (because it's inside brackets and it doesn't have function definition)
+        if last_symbol == 1:
+            #print("ligne in last symbol     ", ligne)
+            return 1
     return False
 
 
