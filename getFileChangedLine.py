@@ -14,7 +14,7 @@ modif_res = False
 
 
 def get_files(pull_requests_nb):
-    repo = g.get_repo("apache/incubator-heron")
+    repo = g.get_repo("acouvreur/software-architecture-project")
     pull_requests = repo.get_pull(pull_requests_nb)
     files = pull_requests.get_files()
     files_list = []
@@ -25,11 +25,10 @@ def get_files(pull_requests_nb):
 
 def files_comparing(pull_requests_nb):
     files_list = get_files(pull_requests_nb)
-    repo = g.get_repo("apache/incubator-heron")
+    repo = g.get_repo("acouvreur/software-architecture-project")
     pull_request = repo.get_pull(pull_requests_nb)
     commits = pull_request.get_commits()
     for c in commits:
-        print("#####")
         files_list = c.files
         i = 0
         global addition_res
@@ -43,9 +42,15 @@ def files_comparing(pull_requests_nb):
         import_added_res = False
         modif_res = False
         for file in files_list:
-            file_content = file.patch
-            if i == 0 or i == 1:
-                # print(file_content)
+            extension = file.filename.split('.')
+            if(len(extension)>1):
+                extension =extension[1]
+            #print(extension)
+            if (extension == 'java'):
+                print("##########################################################################################")
+                file_content = file.patch
+                print(file_content)
+                print("**************")
                 addition = file_only_addition(file_content)
                 if addition:
                     addition_res = True
@@ -59,11 +64,18 @@ def files_comparing(pull_requests_nb):
                 if both:
                     addition_and_deletion_res = True
                 modif = file_modified_function(file_content)
-                if modif:
+                if modif != -1:
                     modif_res = True
                 i += 1
                 print("File " + str(file.filename) + " has additions = " + str(addition_res) + ", has deletions = " + str(deletion_res) + ", both = " +
-                      str(addition_and_deletion_res) + ", has added imports = " + str(import_added_res) + " and has modifieded functions  = " + str(modif_res))
+                          str(addition_and_deletion_res) + ", has added imports = " + str(import_added_res) + " and has modifieded functions  = " + str(modif_res))
+                addition_res = False
+                import_added_res = False
+                deletion_res = False
+                addition_and_deletion_res = False
+                modif_res = False
+                if i == 10:
+                    return 0
 
 
 # doesn't take in the account whether it is an import or not
@@ -131,42 +143,51 @@ def file_modified_function(file):
     ligne_modif = -1
     for i in range(0, len(tab)):
         ligne = tab[i]
-        if (ligne[0] == ("+" or "-")):
+        if ( (ligne[0] == "+" ) or (ligne[0] =="-") ):
+            #print("file_modified_function : " ,ligne)
             ligne_modif = if_function_modified(tab, i)
+            if ligne_modif != -1:
+                fn_name, index_file = ligne_modif
+                return (fn_name, index_file)
     if ligne_modif == -1:
-        return False
-    return True
+        return -1
 
 
 def if_function_modified(file_tab, ligne_nb):
-    # print("**********************************")
 
     size_of_indentation = count_indentation(file_tab, ligne_nb)
     #print("size_of_indentation : " + str(size_of_indentation))
     #   print(file_tab[size_of_indentation])
+    
     # only if indentation is bigger that 2 it can be part of function body
-    if size_of_indentation < 5:
-        #print(" NO FUCNTION")
-        return False
+    if size_of_indentation < 4:
+        print(" NO FUCNTION")
+        return -1
 
     # if definition of the function just have been added/deleted then it can't be modification
     if_fn_def = if_function_def(file_tab[ligne_nb])
     if if_fn_def:
-        # print("false")
-        return False
+        print("false")
+        return -1
 
     # checking previous lignes till the one that has smaller indentation
     index_file = ligne_nb-1
     for i in range(1, ligne_nb):
         size_indent = count_indentation(file_tab, index_file)
+        print("boucle")
         if (size_indent != size_of_indentation):
-            fn_def = if_function_def(file_tab[index_file])
-            if (fn_def):
+            potential_fucntion = file_tab[index_file]
+            print(potential_fucntion)
+            fn_name = if_function_def(potential_fucntion)
+            if (fn_name != False):
                 print("FOUND MEEEEEEE")
-                return index_file
+                print("name function ", fn_name)
+                return (fn_name,index_file)
             else:
+                #print("**********************************")
                 return -1
         index_file -= 1
+    print("nothing")
     return -1
 
 
@@ -174,9 +195,10 @@ def if_function_modified(file_tab, ligne_nb):
 # def modified_different_method(file_older, file_current):
 def if_function_def(ligne):
     words = ligne.split()
-    if (ligne[0] == ("+" or "-")):
-        if (len(words) > 1 and (words[1] == ("public" or "private")) and (words[len(words)-1] == "{")):
-            return True
+    #print("ligne ", words)
+    if (len(words) > 1 and (words[0] == ("public" or "private")) and (words[len(words)-1] == "{" or words[len(words)-1] =="(")):
+        fn_name= words[3]
+        return fn_name
     return False
 
 
@@ -195,6 +217,6 @@ def count_indentation(file_tab, ligne_nb):
     return size_of_indentation
 
 
-files_comparing(3111)
+files_comparing(3)
 
 print("end")
