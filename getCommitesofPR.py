@@ -2,6 +2,7 @@ from github import Github
 from utils import *
 import sys
 import getopt
+import getFileChangedLine as gfch
 
 NBtestsPasAJour = 0
 NBtestsMalEcrit = 0
@@ -10,6 +11,21 @@ NBcodeAjouteMarche = 0
 
 NBcommits = 0
 NBcommitsError = 0
+
+nb_addition_res = 0
+nb_deletion_res = 0
+nb_addition_and_deletion_res = 0
+nb_import_added_res = 0
+nb_modif_res = 0
+
+
+def transform_files_comparing(res):
+    nb_addition_res = res[0]
+    nb_deletion_res = res[1]
+    nb_addition_and_deletion_res = res[2]
+    nb_import_added_res = res[3]
+    nb_modif_res = res[4]
+
 
 
 def main(argv):
@@ -40,11 +56,14 @@ def main(argv):
         for line in ins:
             commits = get_commits(g, repo, int(line))
             hisCodeIsBad(commits, int(line))
+            res = gfch.files_comparing(repo, int(line))
+            transform_files_comparing(res)
     print("----------------------resultat:--------------------")
     print("NBtestsPasAJour:" + str(NBtestsPasAJour) + " NBtestsMalEcrit:" + str(NBtestsMalEcrit) +
           " NBcodeAjouteMauvais:" + str(NBcodeAjouteMauvais) + " NBcodeAjouteMarche:" + str(NBcodeAjouteMarche))
     print("NBcommits:" + str(NBcommits) +
           " NBcommitsError:" + str(NBcommitsError))
+    print("nb_addition_res:", nb_addition_res, " nb_deletion_res:", nb_deletion_res, " nb_addition_and_deletion_res:", nb_addition_and_deletion_res, " nb_import_added_res:" , nb_import_added_res, " nb_modif_res:" , nb_modif_res )
 
 def get_commits(g, repo, numeroPull):
     myCommits = []

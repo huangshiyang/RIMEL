@@ -12,6 +12,13 @@ addition_and_deletion_res = False
 import_added_res = False
 modif_res = False
 
+nb_addition_res = 0
+nb_deletion_res = 0
+nb_addition_and_deletion_res = 0
+nb_import_added_res = 0
+nb_modif_res = 0
+nb_both = 0
+
 
 def get_files(pull_requests_nb):
     repo = g.get_repo("acouvreur/software-architecture-project")
@@ -23,9 +30,11 @@ def get_files(pull_requests_nb):
     return files_list
 
 
-def files_comparing(pull_requests_nb):
-    files_list = get_files(pull_requests_nb)
-    repo = g.get_repo("acouvreur/software-architecture-project")
+
+
+def files_comparing(repo, pull_requests_nb):
+    #files_list = get_files(pull_requests_nb)
+    #repo = g.get_repo("acouvreur/software-architecture-project")
     pull_request = repo.get_pull(pull_requests_nb)
     commits = pull_request.get_commits()
     for c in commits:
@@ -41,6 +50,11 @@ def files_comparing(pull_requests_nb):
         addition_and_deletion_res = False
         import_added_res = False
         modif_res = False
+        global nb_addition_res
+        global nb_deletion_res
+        global nb_addition_and_deletion_res
+        global nb_import_added_res
+        global nb_modif_res
         for file in files_list:
             extension = file.filename.split('.')
             if(len(extension)>1):
@@ -54,28 +68,28 @@ def files_comparing(pull_requests_nb):
                 addition = file_only_addition(file_content)
                 if addition:
                     addition_res = True
+                    nb_addition_res += 1
                 import_file = file_import_added(file_content)
                 if import_file:
                     import_added_res = True
+                    nb_import_added_res+=1
                 deletion = file_only_deletion(file_content)
                 if deletion:
                     deletion_res = True
+                    nb_deletion_res+=1
                 both = file_addition_and_deletion(file_content)
                 if both:
                     addition_and_deletion_res = True
+                    nb_addition_and_deletion_res +=1
                 modif = file_modified_function(file_content)
                 if modif != -1:
                     modif_res = True
+                    nb_modif_res +=1
                 i += 1
                 print("File " + str(file.filename) + " has additions = " + str(addition_res) + ", has deletions = " + str(deletion_res) + ", both = " +
                           str(addition_and_deletion_res) + ", has added imports = " + str(import_added_res) + " and has modifieded functions  = " + str(modif_res))
-                addition_res = False
-                import_added_res = False
-                deletion_res = False
-                addition_and_deletion_res = False
-                modif_res = False
-                if i == 10:
-                    return 0
+        return [nb_addition_res,nb_deletion_res, nb_addition_and_deletion_res, nb_import_added_res, nb_modif_res ]
+
 
 
 # doesn't take in the account whether it is an import or not
@@ -258,6 +272,6 @@ def count_indentation(file_tab, ligne_nb):
     return size_of_indentation
 
 
-files_comparing(3)
+#files_comparing(3)
 
 print("end")
