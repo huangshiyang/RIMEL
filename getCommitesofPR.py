@@ -31,7 +31,7 @@ def transform_files_comparing(res):
 def main(argv):
     repo_name = ''
     inputfile = ''
-    helpMsg = "test.py -r <github/repo> -i <inputfile>"
+    helpMsg = "getCommitesofPR.py -r <github/repo> -i <inputfile>"
     try:
         opts, args = getopt.getopt(argv, "hr:i:", ["repo=", "ifile="])
     except getopt.GetoptError:

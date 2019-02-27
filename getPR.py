@@ -10,18 +10,18 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hr:o:", ["repo=", "ofile="])
     except getopt.GetoptError:
-        print("test.py -r <github/repo> -o <outputfile>")
+        print("getPR.py -r <github/repo> -o <outputfile>")
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print("test.py -r <github/repo> -o <outputfile>")
+            print("getPR.py -r <github/repo> -o <outputfile>")
             sys.exit()
         elif opt in ("-r", "--repo"):
             repo_name = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
     if repo_name == '' or outputfile == '':
-        print("test.py -r <github/repo> -o <outputfile>")
+        print("getPR.py -r <github/repo> -o <outputfile>")
         sys.exit(2)
 
     print("start")
